@@ -17,7 +17,6 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-    context: slack-secrets
 
   build-backend:
     docker:
@@ -35,7 +34,6 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-    context: slack-secrets
 
   test-frontend:
     docker:
@@ -53,7 +51,6 @@ jobs:
             cd frontend
             npm install
             npm run test
-    context: slack-secrets
 
                 
   test-backend:
@@ -72,8 +69,7 @@ jobs:
             cd backend
             npm install
             npm run test
-    context: slack-secrets
-
+  
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -87,7 +83,6 @@ jobs:
             cd frontend
             npm install
             npm audit --audit-level=critical
-    context: slack-secrets
   
   scan-backend:
     docker:
@@ -102,18 +97,23 @@ jobs:
             cd backend
             npm install
             npm audit --audit-level=critical
-    context: slack-secrets
 
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
       - test-frontend:
+          context: slack-secrets
           requires: [build-frontend]
       - test-backend:
+          context: slack-secrets
           requires: [build-backend]
       - scan-frontend:
+          context: slack-secrets
           requires: [build-frontend]
       - scan-backend:
+          context: slack-secrets
           requires: [build-backend]
