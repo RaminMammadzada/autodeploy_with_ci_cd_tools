@@ -3,6 +3,23 @@ version: 2.1
 orbs:
   slack: circleci/slack@3.4.2
 
+commands:
+  destroy_backend_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+  
+  destroy_frontend_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+
 jobs:
   build-frontend:
     docker:
@@ -125,8 +142,12 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
-            exit 1
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> inventory.txt
+      - destroy_backend_environment
+      - destroy_frontend_environment
       - persist_to_workspace:
           root: ~/
           paths:
@@ -151,3 +172,4 @@ workflows:
       - scan-backend:
           context: slack-secrets
           requires: [build-backend]
+      - deploy-infrastructure
