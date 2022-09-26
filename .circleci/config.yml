@@ -200,6 +200,7 @@ jobs:
                   # If you are using kvdb.io, generate the bucket ID "V5LXienVHY42J8jAzaHpYf" in your local terminal first
                   curl https://kvdb.io/V5LXienVHY42J8jAzaHpYf/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
+              
      # Here's where you will add some code to rollback on failure     
 
 workflows:
