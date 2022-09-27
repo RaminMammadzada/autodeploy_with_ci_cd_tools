@@ -164,13 +164,12 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["ad:1d:82:cf:ad:59:23:70:7b:df:12:b1:49:27:1e:3e"]
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # Your code here
             yum -y install tar gzip ansible
+      - attach_workspace:
+          at: ~/
       - run:
           name: Configure server
           command: |
