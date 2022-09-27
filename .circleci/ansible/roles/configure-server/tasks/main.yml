@@ -9,6 +9,24 @@
   apt:
     upgrade: yes
 
+- name: install curl
+  become: true
+  command: apt-get install -y curl
+  args:
+    chdir: /root
+
+- name: download and install nodejs 13.x version
+  become: true
+  command: curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+  args:
+    chdir: /root
+
+- name: upgrade nodejs
+  become: true
+  command: apt-get install -y nodejs
+  args:
+    chdir: /root
+
 - name: remove dependencies that are no longer required
   become: true
   apt:
@@ -17,7 +35,7 @@
 - name: install nodejs and npm
   become: true
   apt:
-    name: ["nodejs", "npm"]
+    name: ["npm"]
     update_cache: yes
 
 - name: install python
