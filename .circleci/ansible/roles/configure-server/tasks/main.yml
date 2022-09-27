@@ -31,13 +31,7 @@
   become: true
   apt:
     autoremove: yes
-
-- name: install nodejs and npm
-  become: true
-  apt:
-    name: ["npm"]
-    update_cache: yes
-
+    
 - name: install python
   become: true
   apt:
