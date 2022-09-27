@@ -4,18 +4,18 @@ orbs:
   slack: circleci/slack@3.4.2
 
 commands:
-  destroy_backend_environment:
+  destroy-backend-environment:
     steps:
       - run:
-          name: Destroy environment
+          name: Destroy backend environment
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
   
-  destroy_frontend_environment:
+  destroy-frontend-environment:
     steps:
       - run:
-          name: Destroy environment
+          name: Destroy frontend environment
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
@@ -169,8 +169,8 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
               --output text >> inventory.txt
-      - destroy_backend_environment
-      - destroy_frontend_environment
+      - destroy-backend-environment
+      - destroy-frontend-environment
       - persist_to_workspace:
           root: ~/
           paths:
@@ -201,7 +201,8 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      # Here's where you will add some code to rollback on failure
+      - destroy-backend-environment
+      - destroy-frontend-environment
 
   run-migrations:
     docker:
@@ -226,7 +227,6 @@ jobs:
                   curl https://kvdb.io/V5LXienVHY42J8jAzaHpYf/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
       - revert-migrations
-     # Here's where you will add some code to rollback on failure     
 
   deploy-frontend:
     docker:
@@ -265,8 +265,7 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy_frontend_environment
-      # Here's where you will add some code to rollback on failure
+      - destroy-frontend-environment
    
   deploy-backend:
     docker:
@@ -310,8 +309,50 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - revert-migrations
-      - destroy_backend_environment
-      # Here's where you will add some code to rollback on failure
+      - destroy-backend-environment
+
+  smoke-test:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install nodejs
+          command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum install -y nodejs
+      - run:
+          name: Install ansible
+          command: |
+            yum update
+            yum install -y nodejs curl
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$( aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            export BACKEND_API_URL="http://${BACKEND_IP}:3030"
+      - run:
+          name: Backend smoke test.
+          command: |
+            if curl "${BACKEND_API_URL}/api/status" | grep "ok"
+            then
+              exit 0
+            else
+              exit 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            export FRONTEND_APP_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            if curl -s ${FRONTEND_APP_URL} | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
+      - destroy-backend-environment
+      - destroy-frontend-environment
+      - revert-migrations
 
 workflows:
   default:
@@ -345,3 +386,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
