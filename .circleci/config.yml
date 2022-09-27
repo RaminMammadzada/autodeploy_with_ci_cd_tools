@@ -19,6 +19,26 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+  
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow-id:
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        type: string
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            SUCCESS=$(curl --insecure  https://kvdb.io/V5LXienVHY42J8jAzaHpYf/migration_${CIRCLE_WORKFLOW_ID:0:7})
+             if (( $SUCCESS == 1 ));
+             then
+                 cd ~/project/backend
+                 npm install
+                 npm run migration:revert
+             fi
 
 jobs:
   build-frontend:
@@ -205,7 +225,7 @@ jobs:
                   # If you are using kvdb.io, generate the bucket ID "V5LXienVHY42J8jAzaHpYf" in your local terminal first
                   curl https://kvdb.io/V5LXienVHY42J8jAzaHpYf/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
-
+      - revert-migrations
      # Here's where you will add some code to rollback on failure     
 
   deploy-frontend:
@@ -245,6 +265,7 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy_frontend_environment
       # Here's where you will add some code to rollback on failure
    
   deploy-backend:
@@ -275,41 +296,52 @@ jobs:
             yum install -y ansible     
       - attach_workspace:
           at: ~/ 
-      # - run:
-      #     name: Deploy backend
-      #     command: |
-      #       # your code here
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz
+            cd .circleci/ansible
+            echo "Contents of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - revert-migrations
+      - destroy_backend_environment
       # Here's where you will add some code to rollback on failure
 
 workflows:
   default:
     jobs:
-      # - build-frontend:
-      #     context: slack-secrets
-      # - build-backend:
-      #     context: slack-secrets
-      # - test-frontend:
-      #     context: slack-secrets
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     context: slack-secrets
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     context: slack-secrets
-      #     requires: [build-frontend]
-      # - scan-backend:
-      #     context: slack-secrets
-      #     requires: [build-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend]
-      #     # filters:
-      #     #   branches:
-      #     #     only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      - deploy-backend
-          # requires: [run-migrations]
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
+      - test-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - test-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - scan-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - scan-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend]
+          # filters:
+          #   branches:
+          #     only: [main]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
