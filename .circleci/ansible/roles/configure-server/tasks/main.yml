@@ -14,7 +14,7 @@
   apt:
     autoremove: yes
 
-- name: install dependencies
+- name: install nodejs and npm
   become: true
   apt:
     name: ["nodejs", "npm"]

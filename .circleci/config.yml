@@ -327,14 +327,16 @@ jobs:
             yum update
             yum install -y nodejs curl
       - run:
-          name: Get backend url
-          command: |
-            export BACKEND_IP=$( aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-      - run:
           name: Backend smoke test.
           command: |
+            # export BACKEND_IP=$( aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            # export API_URL="http://${BACKEND_IP}:3030"
+            # echo "${API_URL}"
+
+            export BACKEND_IP=3.68.197.182
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+
             if curl "${API_URL}/api/status" | grep "ok"
             then
               exit 0
@@ -359,34 +361,34 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: slack-secrets
-      - build-backend:
-          context: slack-secrets
-      - test-frontend:
-          context: slack-secrets
-          requires: [build-frontend]
-      - test-backend:
-          context: slack-secrets
-          requires: [build-backend]
-      - scan-frontend:
-          context: slack-secrets
-          requires: [build-frontend]
-      - scan-backend:
-          context: slack-secrets
-          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend]
-          # filters:
-          #   branches:
-          #     only: [main]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-frontend, deploy-backend]
+      # - build-frontend:
+      #     context: slack-secrets
+      # - build-backend:
+      #     context: slack-secrets
+      # - test-frontend:
+      #     context: slack-secrets
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     context: slack-secrets
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     context: slack-secrets
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     context: slack-secrets
+      #     requires: [build-backend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend]
+      #     # filters:
+      #     #   branches:
+      #     #     only: [main]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      - smoke-test
+          # requires: [deploy-frontend, deploy-backend]
