@@ -207,10 +207,7 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
-      # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install nodejs
           command: |
@@ -224,6 +221,8 @@ jobs:
           name: Install gzip
           command: |
             yum install -y gzip
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
