@@ -4,28 +4,20 @@
   apt:
     update_cache: yes
 
+- name: "Add nodejs apt key"
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
+
+- name: "Add nodejs 13.x ppa for apt repo"
+  apt_repository:
+    repo: deb https://deb.nodesource.com/node_13.x bionic main
+    update_cache: yes
+
 - name: upgrade packages
   become: true
   apt:
     upgrade: yes
-
-- name: install curl
-  become: true
-  command: apt-get install -y curl
-  args:
-    chdir: /root
-
-- name: download and install nodejs 13.x version
-  become: true
-  command: get_url -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-  args:
-    chdir: /root
-
-- name: upgrade nodejs
-  become: true
-  command: apt-get install -y nodejs
-  args:
-    chdir: /root
 
 - name: remove dependencies that are no longer required
   become: true
@@ -35,7 +27,7 @@
 - name: install nodejs and npm
   become: true
   apt:
-    name: ["npm"]
+    name: ["nodejs", "npm"]
     update_cache: yes
 
 - name: install python
