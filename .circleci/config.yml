@@ -212,12 +212,18 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install nodejs
           command: |
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
-            yum -y install nodejs
-            yum -y install tar
-            yum -y install gzip
+            yum install -y nodejs
+      - run:
+          name: Install tar
+          command: |
+            yum install -y tar
+      - run:
+          name: Install gzip
+          command: |
+            yum install -y gzip
       - run:
           name: Get backend url
           command: |
