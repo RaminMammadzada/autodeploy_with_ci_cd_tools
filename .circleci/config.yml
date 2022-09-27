@@ -37,7 +37,7 @@ commands:
              then
                  cd ~/project/backend
                  npm install
-                 npm run migration:revert
+                 npm run migrations:revert
              fi
 
 jobs:
@@ -361,9 +361,9 @@ jobs:
             else
               return 1
             fi
-      # - destroy-backend-environment
-      # - destroy-frontend-environment
-      # - revert-migrations
+      - destroy-backend-environment
+      - destroy-frontend-environment
+      - revert-migrations
 
 workflows:
   default:
