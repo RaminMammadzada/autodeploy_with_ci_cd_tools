@@ -212,8 +212,8 @@ jobs:
             
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-backend-environment
-      - destroy-frontend-environment
+      # - destroy-backend-environment
+      # - destroy-frontend-environment
 
   run-migrations:
     docker:
