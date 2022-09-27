@@ -64,3 +64,5 @@ Before you submit your project, please check your work against the project rubri
 [License](LICENSE.md)
 
 [URL01](https://github.com/RaminMammadzada/autodeploy_with_ci_cd_tools/tree/1884dbbfa20a1823ff1ccafe704a121abf21611b)
+
+[URL02](https://udapeople-12543c8.s3.eu-central-1.amazonaws.com/index.html)

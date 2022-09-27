@@ -165,7 +165,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["ad:1d:82:cf:ad:59:23:70:7b:df:12:b1:49:27:1e:3e"]
       - run:
-          name: Install python and ansible
+          name: Install ansible
           command: |
             yum update
             amazon-linux-extras enable ansible2
@@ -247,33 +247,69 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure
    
+  deploy-backend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["ad:1d:82:cf:ad:59:23:70:7b:df:12:b1:49:27:1e:3e"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install nodejs
+          command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum install -y nodejs
+      - run:
+          name: Install tar
+          command: |
+            yum install -y tar
+      - run:
+          name: Install gzip
+          command: |
+            yum install -y gzip
+      - run:
+          name: Install ansible
+          command: |
+            yum update
+            amazon-linux-extras enable ansible2
+            yum install -y ansible      
+      # - run:
+      #     name: Deploy backend
+      #     command: |
+      #       # your code here
+      # Here's where you will add some code to rollback on failure
+
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: slack-secrets
-      - build-backend:
-          context: slack-secrets
-      - test-frontend:
-          context: slack-secrets
-          requires: [build-frontend]
-      - test-backend:
-          context: slack-secrets
-          requires: [build-backend]
-      - scan-frontend:
-          context: slack-secrets
-          requires: [build-frontend]
-      - scan-backend:
-          context: slack-secrets
-          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend]
-          # filters:
-          #   branches:
-          #     only: [main]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+      # - build-frontend:
+      #     context: slack-secrets
+      # - build-backend:
+      #     context: slack-secrets
+      # - test-frontend:
+      #     context: slack-secrets
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     context: slack-secrets
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     context: slack-secrets
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     context: slack-secrets
+      #     requires: [build-backend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend]
+      #     # filters:
+      #     #   branches:
+      #     #     only: [main]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      - deploy-backend
+          # requires: [run-migrations]
