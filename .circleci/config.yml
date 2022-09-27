@@ -164,11 +164,11 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["ad:1d:82:cf:ad:59:23:70:7b:df:12:b1:49:27:1e:3e"]
-      # - run:
-      #     name: Install python and ansible
-      #     command: |
-      #       sudo yum install python3-pip 
-      #       pip3 install ansible
+      - run:
+          name: Install python and ansible
+          command: |
+            yum install python3-pip 
+            pip3 install ansible
       - run:
           name: Install other dependencies
           command: |
