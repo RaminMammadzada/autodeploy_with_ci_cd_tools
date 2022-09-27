@@ -254,8 +254,6 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["ad:1d:82:cf:ad:59:23:70:7b:df:12:b1:49:27:1e:3e"]
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install nodejs
           command: |
@@ -274,7 +272,9 @@ jobs:
           command: |
             yum update
             amazon-linux-extras enable ansible2
-            yum install -y ansible      
+            yum install -y ansible     
+      - attach_workspace:
+          at: ~/ 
       # - run:
       #     name: Deploy backend
       #     command: |
