@@ -199,6 +199,17 @@ jobs:
       - run:
           name: Configure server
           command: |
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-backend-environment
@@ -327,15 +338,12 @@ jobs:
             yum update
             yum install -y nodejs curl
       - run:
-          name: Get backend url
+          name: Get backend URL and backend smoke test.
           command: |
-            export BACKEND_IP=3.68.197.182
+            export BACKEND_IP=$( aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
 
-      - run:
-          name: Backend smoke test.
-          command: |
             if curl "${API_URL}/api/status" | grep "ok"
             then
               exit 0
@@ -360,34 +368,34 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend:
-      #     context: slack-secrets
-      # - build-backend:
-      #     context: slack-secrets
-      # - test-frontend:
-      #     context: slack-secrets
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     context: slack-secrets
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     context: slack-secrets
-      #     requires: [build-frontend]
-      # - scan-backend:
-      #     context: slack-secrets
-      #     requires: [build-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend]
-      #     # filters:
-      #     #   branches:
-      #     #     only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      - smoke-test
-          # requires: [deploy-frontend, deploy-backend]
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
+      - test-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - test-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - scan-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - scan-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend]
+          # filters:
+          #   branches:
+          #     only: [main]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
