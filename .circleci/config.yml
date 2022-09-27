@@ -200,9 +200,42 @@ jobs:
                   # If you are using kvdb.io, generate the bucket ID "V5LXienVHY42J8jAzaHpYf" in your local terminal first
                   curl https://kvdb.io/V5LXienVHY42J8jAzaHpYf/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
-              
+
      # Here's where you will add some code to rollback on failure     
 
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+            yum -y install tar gzip
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            npm install webpack-dev-server -g
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      # Here's where you will add some code to rollback on failure
+   
 workflows:
   default:
     jobs:
@@ -230,3 +263,4 @@ workflows:
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations
+      - deploy-frontend
