@@ -63,6 +63,8 @@ Before you submit your project, please check your work against the project rubri
 
 [License](LICENSE.md)
 
+### URLs for Project Submission to Udacity Review
+
 [URL01](https://github.com/RaminMammadzada/autodeploy_with_ci_cd_tools)
 
-[URL02](https://udapeople-2fc6075.s3.eu-central-1.amazonaws.com/index.html)
+[URL02](https://udapeople-5dbc8ab.s3.eu-central-1.amazonaws.com/index.html)
