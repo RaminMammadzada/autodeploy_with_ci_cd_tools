@@ -126,9 +126,7 @@ jobs:
           name: Front-end scan
           command: |
             cd frontend
-            npm install node-fetch@2.6.7
             npm install
-            npm update
             npm install node-fetch@2.6.7
             npm audit --audit-level=critical --force
             npm audit --audit-level=critical
@@ -147,9 +145,7 @@ jobs:
           name: Back-end scan
           command: |
             cd backend
-            npm install node-fetch@2.6.7
             npm install
-            npm update
             npm install node-fetch@2.6.7
             npm audit --audit-level=critical --force
             npm audit --audit-level=critical
