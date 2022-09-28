@@ -401,20 +401,24 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Get all backend stacks including workflow ids inside stack names
-          command: |
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - run:
+      #     name: Get all backend stacks including workflow ids inside stack names
+      #     command: |
+      #       echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
 
-            export BackendStackNames=($(aws cloudformation describe-stacks --no-paginate --query \
-            'Stacks[?StackName!=`null`]|[?contains(StackName, `udapeople-backend`) == `true`].StackName' --output text))
+      #       export BackendStackNames=($(aws cloudformation describe-stacks --no-paginate --query \
+      #       'Stacks[?StackName!=`null`]|[?contains(StackName, `udapeople-backend`) == `true`].StackName' --output text))
 
-            echo BackendStackNames: "${BackendStackNames[@]}"
-            echo "export BackendStackNames=${BackendStackNames[@]}" >> $BASH_ENV
+      #       echo BackendStackNames: "${BackendStackNames[@]}"
+      #       echo "export BackendStackNames=${BackendStackNames[@]}" >> $BASH_ENV
 
       - run:
           name: Remove old stacks and files
           command: |
+
+            BackendStackNames=($(aws cloudformation describe-stacks --no-paginate --query \
+            'Stacks[?StackName!=`null`]|[?contains(StackName, `udapeople-backend`) == `true`].StackName' --output text))
+
             for StackName in "${BackendStackNames[@]}"; do
               echo StackName: "${StackName}"
               OldWorkflowID=${StackName: -7}
