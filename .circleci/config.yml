@@ -12,7 +12,7 @@ commands:
         type: string
     steps:
       - run:
-          name: Destroy backend environment
+          name: Destroy environment
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.workflow_id >> "
@@ -362,7 +362,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-eu-central-1.amazonaws.com/#/employees"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/#/employees"
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
@@ -370,7 +370,7 @@ jobs:
             else
               exit 1
             fi
-      - destroy-environment
+      # - destroy-environment
       - revert-migrations
 
 workflows:
