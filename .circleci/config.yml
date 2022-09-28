@@ -413,7 +413,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-            for ID in "#{OldWorkflowIDs}"
+            for ID in "${OldWorkflowIDs}"
             do
               OldWorkflowID=${ID: -7}
               echo OldWorkflowID: "${OldWorkflowID}"
