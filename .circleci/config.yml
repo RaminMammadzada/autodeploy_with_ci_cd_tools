@@ -415,8 +415,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-            for StackName in "${BackendStackNames[@]}"
-            do
+            for StackName in "${BackendStackNames[@]}"; do
               echo StackName: "${StackName}"
               OldWorkflowID=${StackName: -7}
               echo OldWorkflowID: "${OldWorkflowID}"

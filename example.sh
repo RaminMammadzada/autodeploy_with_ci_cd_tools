@@ -1,8 +1,7 @@
 #!/bin/bash
 echo radfas
-for StackName in "${BackendStackNames}"
-do
-  echo StackName: "${StackName}"
+for i in ${BackendStackNames[@]};do
+  echo $i
   # OldWorkflowID=${StackName: -7}
   # echo OldWorkflowID: "${OldWorkflowID}"
   # if [[ "${OldWorkflowID}" != "${CIRCLE_WORKFLOW_ID:0:7}" ]]
