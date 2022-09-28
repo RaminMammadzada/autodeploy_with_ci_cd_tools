@@ -83,7 +83,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-test]
+          keys: [frontend-build]
       # Your job code here
       - run:
           name: Front-end test
@@ -91,7 +91,9 @@ jobs:
             cd frontend
             npm install
             npm run test
-
+      - save_cache:
+          paths: [backend/node_modules]
+          key: frontend-build
                 
   test-backend:
     docker:
@@ -101,7 +103,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [backend-test]
+          keys: [backend-build]
       # Your job code here
       - run:
           name: Back-end test
@@ -109,34 +111,51 @@ jobs:
             cd backend
             npm install
             npm run test
-  
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+          
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-scan]
+          keys: [frontend-build]
       - run:
           name: Front-end scan
           command: |
             cd frontend
+            npm install node-fetch@2.6.7
             npm install
+            npm update
+            npm install node-fetch@2.6.7
+            npm audit --audit-level=critical --force
             npm audit --audit-level=critical
-  
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-scan]
+          keys: [backend-build]
       - run:
           name: Back-end scan
           command: |
             cd backend
+            npm install node-fetch@2.6.7
             npm install
+            npm update
+            npm install node-fetch@2.6.7
+            npm audit --audit-level=critical --force
             npm audit --audit-level=critical
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
 
   deploy-infrastructure:
     docker:
