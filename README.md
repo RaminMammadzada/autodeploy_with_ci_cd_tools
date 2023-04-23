@@ -16,15 +16,15 @@ This repository includes the solution CircleCI pipelines and the screenshot of t
 
 ### Project Requirements by Udacity Course Team
 
-* [Selling CI/CD](instructions/0-selling-cicd.md)
-* [Getting Started](instructions/1-getting-started.md)
-* [Deploying Working, Trustworthy Software](instructions/2-deploying-trustworthy-code.md)
-* [Configuration Management](instructions/3-configuration-management.md)
+* Selling CI/CD
+* Getting Started
+* Deploying Working, Trustworthy Software
+* Configuration Management
 
-* [Turn Errors into Sirens](instructions/4-turn-errors-into-sirens.md)
+* Turn Errors into Sirens
 
 ### Project Submission 
-The screenshorts for project submission are below.
+The screenshorts for project submission are listed below.
   1. Public Url to GitHub repository: [URL01](https://github.com/RaminMammadzada/autodeploy_with_ci_cd_tools)
   2. Public URL for your S3 Bucket (frontend project): [URL02](https://udapeople-5550dc4.s3.eu-central-1.amazonaws.com/index.html) - *this URL for Udacity team to check the result of my project. It will not be available in later time, due to of its cost.*
   3. Screenshot of AWS console in Cloudfront and public URL for your CloudFront distribution:
