@@ -45,9 +45,9 @@ The screenshorts for project submission are listed below.
   14. Successful cleanup job: ![SCREENSHOT09](./screenshots/SCREENSHOT09.png)
   15. The `deploy-frontend` and `deploy-backend` jobs should not run in   `develop` branch, they should be run when commits pushed to `master` branch:![SCREENSHOT10](./screenshots/SCREENSHOT10.png)
   16. Screenshot of a graph of EC2 instance including available memory, available disk space, and CPU usage. ![SCREENSHOT11](./screenshots/SCREENSHOT11.png)
-  17. Screenshot of an alert that was sent by Prometheus: [SCREENSHOT12](./screenshots/SCREENSHOT12.png)
+  17. Screenshot of an alert that was sent by Prometheus: ![SCREENSHOT12](./screenshots/SCREENSHOT12.png)
 
-
+  
 ### Presentation for selling CI/CD
 
 - I created a [presentation](./presentation.pdf) of proposal that translated the benefits of CI/CD to the values of the business and focused on revenue and cost control, in order to get authorization for implementation in the UdaPeople organization.
